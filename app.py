@@ -1,13 +1,14 @@
 from flask import Flask, render_template, request, redirect
 import sqlite3
+import os
 
 app = Flask(__name__)
 
-# VERİTABANI
-def get_db():
-    return sqlite3.connect("messages.db")
+DB_NAME = "messages.db"
 
-# İLK ÇALIŞTIRMA
+def get_db():
+    return sqlite3.connect(DB_NAME)
+
 def init_db():
     db = get_db()
     cursor = db.cursor()
@@ -20,6 +21,9 @@ def init_db():
     """)
     db.commit()
     db.close()
+
+# 🔥 KRİTİK SATIR – RENDER İÇİN ŞART
+init_db()
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -43,5 +47,4 @@ def index():
     return render_template("index.html", messages=messages)
 
 if __name__ == "__main__":
-    init_db()
     app.run()

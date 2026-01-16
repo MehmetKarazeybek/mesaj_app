@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Mesajlaşma</title>
+    <style>
+        body { font-family: Arial; background: #111; color: #fff; }
+        .box { max-width: 500px; margin: auto; }
+        input, button {
+            width: 100%; padding: 10px; margin-top: 5px;
+        }
+        .msg {
+            background: #222;
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 5px;
+        }
+        b { color: #00ffcc; }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>💬 Mesajlaşma</h2>
+
+    <form method="post">
+        <input name="name" placeholder="Adın" required>
+        <input name="message" placeholder="Mesajın" required>
+        <button>Gönder</button>
+    </form>
+
+    <hr>
+
+    {% for name, message in messages %}
+        <div class="msg">
+            <b>{{ name }}:</b> {{ message }}
+        </div>
+    {% endfor %}
+</div>
+
+</body>
+</html>

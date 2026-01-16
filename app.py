@@ -1,13 +1,15 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, jsonify
 import sqlite3
-import os
 
 app = Flask(__name__)
+app.config["SECRET_KEY"] = "render-secret-key"
 
 DB_NAME = "messages.db"
 
+# ------------------ DATABASE ------------------
+
 def get_db():
-    return sqlite3.connect(DB_NAME)
+    return sqlite3.connect(DB_NAME, check_same_thread=False)
 
 def init_db():
     db = get_db()
@@ -15,36 +17,55 @@ def init_db():
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS messages (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT,
-            message TEXT
+            name TEXT NOT NULL,
+            message TEXT NOT NULL
         )
     """)
     db.commit()
     db.close()
 
-# 🔥 KRİTİK SATIR – RENDER İÇİN ŞART
+# Render + gunicorn için ŞART
 init_db()
+
+# ------------------ ROUTES ------------------
 
 @app.route("/", methods=["GET", "POST"])
 def index():
-    db = get_db()
-    cursor = db.cursor()
-
     if request.method == "POST":
-        name = request.form["name"]
-        message = request.form["message"]
-        cursor.execute(
-            "INSERT INTO messages (name, message) VALUES (?, ?)",
-            (name, message)
-        )
-        db.commit()
+        name = request.form.get("name")
+        message = request.form.get("message")
+
+        if name and message:
+            db = get_db()
+            cursor = db.cursor()
+            cursor.execute(
+                "INSERT INTO messages (name, message) VALUES (?, ?)",
+                (name, message)
+            )
+            db.commit()
+            db.close()
+
         return redirect("/")
 
-    cursor.execute("SELECT name, message FROM messages")
-    messages = cursor.fetchall()
-    db.close()
+    return render_template("index.html")
 
-    return render_template("index.html", messages=messages)
+
+@app.route("/messages")
+def messages():
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute("SELECT name, message FROM messages ORDER BY id ASC")
+    data = cursor.fetchall()
+    db.close()
+    return jsonify(data)
+
+
+@app.route("/health")
+def health():
+    return "OK"
+
+
+# ------------------ MAIN ------------------
 
 if __name__ == "__main__":
     app.run()

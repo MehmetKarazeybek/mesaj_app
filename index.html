@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Mesajlaşma</title>
+<style>
+body { background:#111; color:white; font-family:Arial }
+.box { width:400px; margin:auto; background:#222; padding:20px }
+input,button { width:100%; padding:10px; margin-top:10px }
+.msg { background:#333; margin-top:5px; padding:5px }
+</style>
+</head>
+<body>
+
+<div class="box">
+<h3>Hoş geldin {{ user }}</h3>
+
+<form method="post">
+<input name="message" placeholder="mesaj yaz">
+<button>Gönder</button>
+</form>
+
+<hr>
+
+{% for m in messages %}
+<div class="msg"><b>{{ m.username }}:</b> {{ m.message }}</div>
+{% endfor %}
+
+<a href="/logout">Çıkış</a>
+</div>
+
+</body>
+</html>
